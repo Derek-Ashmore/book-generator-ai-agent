@@ -1,0 +1,40 @@
+{
+  "name": "book-generator-ai-agent",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "AI-powered CLI tool that generates complete books from FreeMind mind map outlines",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "main": "dist/index.js",
+  "bin": {
+    "book-generator": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:accept": "vitest run tests/acceptance/",
+    "lint": "eslint src/",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.7",
+    "fast-xml-parser": "^4.5.1",
+    "openai": "^4.77.0",
+    "p-limit": "^6.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.12",
+    "@vitest/coverage-v8": "^2.1.8",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.2",
+    "vitest": "^2.1.8"
+  }
+}
