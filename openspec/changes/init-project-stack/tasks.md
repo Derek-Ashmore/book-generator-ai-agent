@@ -7,7 +7,7 @@
 ## 2. Dependencies
 
 - [ ] 2.1 Install runtime dependencies: fast-xml-parser, openai, commander, p-limit, dotenv
-- [ ] 2.2 Install dev dependencies: typescript, tsup, tsx, vitest, eslint, prettier, typescript-eslint, @types/node
+- [ ] 2.2 Install dev dependencies: typescript, tsup, tsx, vitest, eslint, prettier, typescript-eslint, @types/node, @vitest/coverage-v8
 
 ## 3. Code Quality Configuration
 
@@ -20,7 +20,7 @@
 - [ ] 4.2 Create `src/parser.ts` with placeholder module stub
 - [ ] 4.3 Create `src/generator.ts` stub that accepts an `LlmClient` parameter via dependency injection (not a hardcoded import)
 - [ ] 4.4 Create `src/writer.ts` with placeholder module stub
-- [ ] 4.5 Create `src/index.ts` CLI entry point stub with Commander setup
+- [ ] 4.5 Create `src/index.ts` CLI entry point with Commander setup — wire `--llm` / `-l` argument (choices: `openai`, `stub`; default: `openai`) to instantiate the corresponding `LlmClient` implementation
 
 ## 5. LLM Abstraction Layer
 
@@ -47,6 +47,8 @@
 ## 9. PR Verification Workflow
 
 - [ ] 9.1 Create `.github/workflows/pr-verify.yml` with parallel typecheck, lint, test, and acceptance jobs on Node.js 20 with npm caching (no API keys required)
+- [ ] 9.2 Configure the test job to run Vitest with `--coverage` flag using `@vitest/coverage-v8`
+- [ ] 9.3 Add a step in the test job that writes the coverage summary to `$GITHUB_STEP_SUMMARY` (markdown table with line, branch, function, and statement percentages)
 
 ## 10. Validation
 

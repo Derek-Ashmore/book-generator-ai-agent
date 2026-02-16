@@ -65,6 +65,27 @@ The PR verification workflow SHALL NOT require any LLM API keys or secrets. All 
 - **WHEN** the workflow runs in a fresh CI environment with no configured secrets
 - **THEN** all jobs (typecheck, lint, test, acceptance) complete successfully
 
+### Requirement: Code coverage collection
+The test job SHALL run Vitest with coverage enabled (using `@vitest/coverage-v8`) and produce a coverage report.
+
+#### Scenario: Coverage report is generated
+- **WHEN** the test job runs
+- **THEN** Vitest produces a coverage summary including line, branch, function, and statement percentages
+
+### Requirement: Coverage summary on workflow run
+The test job SHALL write a code coverage summary to `$GITHUB_STEP_SUMMARY` so that coverage metrics appear on the GitHub Actions workflow run summary page.
+
+#### Scenario: Coverage appears in run summary
+- **WHEN** the test job completes successfully
+- **THEN** the workflow run summary page displays a coverage table with line, branch, function, and statement percentages
+
+### Requirement: Coverage dev dependency
+The project SHALL include `@vitest/coverage-v8` as a dev dependency to support coverage collection.
+
+#### Scenario: Coverage dependency is listed
+- **WHEN** `package.json` is inspected
+- **THEN** `devDependencies` includes `@vitest/coverage-v8`
+
 ### Requirement: npm dependency caching
 Each job in the workflow SHALL cache npm dependencies to speed up repeated runs.
 

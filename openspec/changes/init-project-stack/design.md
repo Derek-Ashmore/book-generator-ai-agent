@@ -56,7 +56,17 @@ Implement `StubLlmClient` in `src/llm/stub.ts` that returns preconfigured respon
 
 **Alternative**: Mock the `openai` package at the module level in tests — rejected because it is brittle (tied to OpenAI SDK internals) and would not survive a provider switch.
 
-### 8. Acceptance Tests in PR Verification
+### 8. CLI-Driven LLM Provider Selection
+The CLI entry point uses Commander.js to expose a `--llm` / `-l` option with choices `openai` and `stub`. The value defaults to `openai`. Based on the argument, `index.ts` instantiates the corresponding `LlmClient` implementation before passing it to the generator. When `--llm stub` is used, no API key is required, making it easy to run the tool locally without credentials or in CI acceptance tests.
+
+**Alternative**: Environment variable (e.g., `LLM_PROVIDER=stub`) — rejected because a CLI argument is more explicit, discoverable via `--help`, and aligns with the existing Commander.js argument pattern.
+
+### 9. Code Coverage in PR Verification
+Configure Vitest with `--coverage` using the `@vitest/coverage-v8` provider. The test job in the GitHub Actions workflow runs coverage collection and writes a coverage summary to `$GITHUB_STEP_SUMMARY` so it appears on the workflow run summary page. This gives reviewers immediate visibility into test coverage without leaving the PR checks view.
+
+**Alternative**: Upload coverage as an artifact and rely on external services (Codecov, Coveralls) — rejected for initial setup because it adds external dependencies. `$GITHUB_STEP_SUMMARY` is zero-cost and built into GitHub Actions.
+
+### 10. Acceptance Tests in PR Verification
 Add a `test:accept` npm script that runs acceptance tests in `tests/acceptance/`. These tests use `StubLlmClient` and a fixture `.mm` file to exercise the full pipeline and assert on the output file structure and content. The GitHub Actions workflow adds an `acceptance` job alongside typecheck, lint, and test.
 
 **Alternative**: Run acceptance tests as part of the unit test suite — rejected because acceptance tests are conceptually different (full pipeline, file I/O) and should be independently runnable and reportable.
@@ -68,3 +78,4 @@ Add a `test:accept` npm script that runs acceptance tests in `tests/acceptance/`
 - **[Empty stubs may confuse linting]** → Placeholder files with unused exports will trigger lint warnings. Mitigation: Add minimal type exports that satisfy the linter without implementing logic.
 - **[LLM interface granularity]** → A single `generateSection` method may not cover all future LLM use cases (e.g., streaming, multi-turn). Mitigation: Start minimal; the interface can be extended with additional methods as new capabilities are needed. The abstraction boundary is the important part.
 - **[Stub fidelity]** → Stub responses do not validate prompt quality or LLM-specific formatting. Mitigation: Acceptance tests verify the deterministic pipeline logic (parsing, assembly, file writing); LLM output quality is a separate concern tested via integration tests with real API keys (out of scope for PR checks).
+- **[Coverage threshold enforcement]** → Not adding a minimum coverage threshold initially. Coverage is reported for visibility only. Mitigation: A threshold can be added once a baseline is established after initial implementation.

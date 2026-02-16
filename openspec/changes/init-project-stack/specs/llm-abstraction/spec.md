@@ -55,6 +55,21 @@ The project SHALL include acceptance tests in `tests/acceptance/` that exercise 
 - **WHEN** the acceptance test suite runs twice with identical inputs
 - **THEN** the outputs are byte-identical
 
+### Requirement: CLI argument for LLM provider selection
+The CLI entry point SHALL accept a `--llm` / `-l` argument with valid choices `openai` and `stub`. The default value SHALL be `openai`. The selected value SHALL determine which `LlmClient` implementation is instantiated.
+
+#### Scenario: Default LLM provider is OpenAI
+- **WHEN** the CLI is invoked without `--llm`
+- **THEN** `OpenAiClient` is used and an API key is required
+
+#### Scenario: Stub provider selected via argument
+- **WHEN** the CLI is invoked with `--llm stub`
+- **THEN** `StubLlmClient` is used and no API key is required
+
+#### Scenario: Invalid LLM provider rejected
+- **WHEN** the CLI is invoked with `--llm invalid`
+- **THEN** Commander.js reports an error listing valid choices (`openai`, `stub`)
+
 ### Requirement: Acceptance test npm script
 The project SHALL define a `test:accept` npm script that runs only the acceptance tests in `tests/acceptance/`.
 

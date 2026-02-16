@@ -63,6 +63,13 @@ The file `src/types.ts` SHALL export the `Outline`, `Chapter`, and `Section` int
 - **WHEN** another module imports from `./types.js`
 - **THEN** `Outline`, `Chapter`, and `Section` are available as named exports
 
+### Requirement: CLI interface
+The application SHALL be a command-line interface (CLI) tool built with Commander.js. All user interaction SHALL occur through command-line arguments and stdout/stderr output. There SHALL be no GUI, web interface, or interactive prompts.
+
+#### Scenario: CLI entry point is executable
+- **WHEN** the built application is invoked via `node dist/index.js --help`
+- **THEN** it prints usage information listing all available arguments and exits
+
 ### Requirement: Environment variable documentation
 The project SHALL include a `.env.example` file documenting the `OPENAI_API_KEY` variable.
 

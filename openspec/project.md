@@ -41,7 +41,8 @@ An AI-powered CLI tool that generates complete books from FreeMind mind map outl
 |---|---|
 | `--outline` / `-o` | Path to the FreeMind .mm outline file |
 | `--dest` / `-d` | Destination folder for book output |
-| `--api-key` | OpenAI API key (or set via `OPENAI_API_KEY` env var) |
+| `--llm` / `-l` | LLM provider to use: `openai` (default) or `stub` |
+| `--api-key` | OpenAI API key (or set via `OPENAI_API_KEY` env var; required when `--llm openai`) |
 
 ## Output Specification
 

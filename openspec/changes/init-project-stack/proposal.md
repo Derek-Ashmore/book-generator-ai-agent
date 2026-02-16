@@ -14,9 +14,10 @@ The project has a defined tech stack (TypeScript 5.x, Node.js 20+, Vitest, ESLin
 - Implement `OpenAiClient` in `src/llm/openai.ts` as the default `LlmClient` implementation using the `openai` npm package
 - Implement `StubLlmClient` in `src/llm/stub.ts` for deterministic testing — returns preconfigured responses keyed by prompt content
 - Wire `generator.ts` to accept an `LlmClient` via dependency injection rather than importing OpenAI directly
+- The CLI entry point (`src/index.ts`) SHALL use Commander.js to expose a `--llm` / `-l` argument accepting `openai` (default) or `stub`, which determines which `LlmClient` implementation is instantiated at runtime
 - Add acceptance tests in `tests/acceptance/` that exercise the full pipeline (parse → generate → write) using `StubLlmClient` to verify deterministic behavior
 - Add npm scripts for `build`, `dev`, `test`, `test:accept`, `lint`, `format`, and `typecheck`
-- Create a GitHub Actions workflow for PR verification (type check, lint, test, acceptance tests)
+- Create a GitHub Actions workflow for PR verification (type check, lint, test, acceptance tests) that captures Vitest code coverage and publishes a coverage summary to the GitHub Actions workflow run summary
 - Add a `.env.example` file documenting required environment variables
 
 ## Capabilities
@@ -26,7 +27,7 @@ The project has a defined tech stack (TypeScript 5.x, Node.js 20+, Vitest, ESLin
 - `code-quality`: ESLint and Prettier configuration for consistent code style enforcement
 - `llm-abstraction`: Provider-agnostic `LlmClient` interface with an OpenAI implementation and a stub implementation for deterministic testing
 - `acceptance-tests`: End-to-end acceptance tests that exercise the full pipeline using `StubLlmClient`, verifiable without API keys
-- `pr-verification`: GitHub Actions workflow that runs type checking, linting, unit tests, and acceptance tests on pull requests
+- `pr-verification`: GitHub Actions workflow that runs type checking, linting, unit tests, and acceptance tests on pull requests — includes code coverage collection and publishes a coverage summary to the workflow run summary page
 
 ### Modified Capabilities
 <!-- No existing capabilities to modify -->
@@ -40,3 +41,4 @@ The project has a defined tech stack (TypeScript 5.x, Node.js 20+, Vitest, ESLin
 - New directory: `.github/workflows/` with CI configuration
 - Dependencies: ~15 npm packages (runtime + dev)
 - All future PRs will be gated by the verification workflow (including acceptance tests that require no API keys)
+- Code coverage percentage will be visible on each workflow run summary for trend visibility
