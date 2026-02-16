@@ -41,11 +41,29 @@ The PR verification workflow SHALL include a job that runs `npm test` using Node
 - **THEN** the job succeeds
 
 ### Requirement: Parallel job execution
-The typecheck, lint, and test jobs SHALL run in parallel (no dependencies between them) for faster feedback.
+The typecheck, lint, test, and acceptance jobs SHALL run in parallel (no dependencies between them) for faster feedback.
 
 #### Scenario: Jobs run concurrently
 - **WHEN** the workflow is triggered
-- **THEN** the typecheck, lint, and test jobs start simultaneously without waiting for each other
+- **THEN** the typecheck, lint, test, and acceptance jobs start simultaneously without waiting for each other
+
+### Requirement: Acceptance test job
+The PR verification workflow SHALL include a job that runs `npm run test:accept` using Node.js 20. This job exercises the full pipeline with a stubbed LLM and requires no API keys or network access.
+
+#### Scenario: Acceptance test failures fail the workflow
+- **WHEN** the acceptance test job runs and any acceptance test fails
+- **THEN** the job fails and the PR check is marked as failed
+
+#### Scenario: Acceptance tests pass the workflow
+- **WHEN** the acceptance test job runs and all acceptance tests pass
+- **THEN** the job succeeds
+
+### Requirement: No API keys required in CI
+The PR verification workflow SHALL NOT require any LLM API keys or secrets. All test jobs (unit and acceptance) SHALL pass using only stubbed/mocked dependencies.
+
+#### Scenario: Workflow runs without secrets
+- **WHEN** the workflow runs in a fresh CI environment with no configured secrets
+- **THEN** all jobs (typecheck, lint, test, acceptance) complete successfully
 
 ### Requirement: npm dependency caching
 Each job in the workflow SHALL cache npm dependencies to speed up repeated runs.

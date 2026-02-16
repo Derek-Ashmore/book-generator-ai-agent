@@ -1,6 +1,6 @@
 ## 1. Project Configuration
 
-- [ ] 1.1 Create `package.json` with name, type "module", engine >=20.0.0, and all npm scripts (build, dev, test, lint, format, typecheck)
+- [ ] 1.1 Create `package.json` with name, type "module", engine >=20.0.0, and all npm scripts (build, dev, test, test:accept, lint, format, typecheck)
 - [ ] 1.2 Create `tsconfig.json` targeting ES2022 with ESNext modules, bundler resolution, strict mode, and outDir "dist"
 - [ ] 1.3 Create `.env.example` with `OPENAI_API_KEY=`
 
@@ -18,26 +18,40 @@
 
 - [ ] 4.1 Create `src/types.ts` exporting Outline, Chapter, and Section interfaces
 - [ ] 4.2 Create `src/parser.ts` with placeholder module stub
-- [ ] 4.3 Create `src/generator.ts` with placeholder module stub
+- [ ] 4.3 Create `src/generator.ts` stub that accepts an `LlmClient` parameter via dependency injection (not a hardcoded import)
 - [ ] 4.4 Create `src/writer.ts` with placeholder module stub
 - [ ] 4.5 Create `src/index.ts` CLI entry point stub with Commander setup
 
-## 5. Build Configuration
+## 5. LLM Abstraction Layer
 
-- [ ] 5.1 Create `tsup.config.ts` targeting ESM output from src/index.ts
+- [ ] 5.1 Create `src/llm/client.ts` defining the `LlmClient` interface with `generateSection(prompt: string): Promise<string>`
+- [ ] 5.2 Create `src/llm/openai.ts` implementing `OpenAiClient` class that wraps the `openai` npm package
+- [ ] 5.3 Create `src/llm/stub.ts` implementing `StubLlmClient` class that returns preconfigured deterministic responses (supports default response and prompt-keyed response map)
+- [ ] 5.4 Create `src/llm/index.ts` barrel export re-exporting `LlmClient`, `OpenAiClient`, and `StubLlmClient`
 
-## 6. Test Setup
+## 6. Build Configuration
 
-- [ ] 6.1 Create `vitest.config.ts` with test directory set to tests/
-- [ ] 6.2 Create `tests/types.test.ts` with a basic smoke test for type exports
+- [ ] 6.1 Create `tsup.config.ts` targeting ESM output from src/index.ts
 
-## 7. PR Verification Workflow
+## 7. Test Setup
 
-- [ ] 7.1 Create `.github/workflows/pr-verify.yml` with parallel typecheck, lint, and test jobs on Node.js 20 with npm caching
+- [ ] 7.1 Create `vitest.config.ts` with test directory set to tests/
+- [ ] 7.2 Create `tests/types.test.ts` with a basic smoke test for type exports
 
-## 8. Validation
+## 8. Acceptance Tests
 
-- [ ] 8.1 Verify `npm run typecheck` passes
-- [ ] 8.2 Verify `npm run lint` passes
-- [ ] 8.3 Verify `npm test` passes
-- [ ] 8.4 Verify `npm run build` produces dist/index.js
+- [ ] 8.1 Create `tests/acceptance/fixtures/sample.mm` — a minimal FreeMind outline fixture with at least 2 chapters and 2 sections each
+- [ ] 8.2 Create `tests/acceptance/pipeline.test.ts` — full pipeline test that parses the fixture, generates content via `StubLlmClient`, writes output, and asserts on file structure, content, and `Book.txt` ordering
+- [ ] 8.3 Verify acceptance tests are deterministic (same input → same output on repeated runs)
+
+## 9. PR Verification Workflow
+
+- [ ] 9.1 Create `.github/workflows/pr-verify.yml` with parallel typecheck, lint, test, and acceptance jobs on Node.js 20 with npm caching (no API keys required)
+
+## 10. Validation
+
+- [ ] 10.1 Verify `npm run typecheck` passes
+- [ ] 10.2 Verify `npm run lint` passes
+- [ ] 10.3 Verify `npm test` passes
+- [ ] 10.4 Verify `npm run test:accept` passes (no API keys needed)
+- [ ] 10.5 Verify `npm run build` produces dist/index.js

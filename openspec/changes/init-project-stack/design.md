@@ -2,6 +2,8 @@
 
 The project is a greenfield TypeScript CLI tool for generating books from FreeMind mind maps. The tech stack is defined in `openspec/project.md` but no code, configuration, or CI exists yet. The repository currently contains only project documentation and tooling configuration (Claude Flow, OpenSpec).
 
+LLM interactions are inherently non-deterministic, making it impossible to write reliable acceptance tests against live LLM APIs. Additionally, the project anticipates supporting multiple LLM providers beyond OpenAI. Both concerns are addressed by abstracting LLM access behind an interface and providing a stub implementation for testing.
+
 ## Goals / Non-Goals
 
 **Goals:**
@@ -44,8 +46,25 @@ A single GitHub Actions workflow triggered on `pull_request` to `main`. Runs thr
 
 **Alternative**: Single sequential job — rejected because parallel jobs provide faster feedback and clearer failure isolation.
 
+### 6. LLM Client Interface and Dependency Injection
+Define an `LlmClient` interface in `src/llm/client.ts` with a single method `generateSection(prompt: string): Promise<string>`. The `generator.ts` module accepts an `LlmClient` via its function signature rather than importing a concrete implementation. This enables swapping providers (OpenAI, Anthropic, local models) and injecting a stub for testing.
+
+**Alternative**: Pass a configuration flag to switch providers inside `generator.ts` — rejected because it couples the generator to all providers and makes testing harder.
+
+### 7. Stub LLM Client for Deterministic Testing
+Implement `StubLlmClient` in `src/llm/stub.ts` that returns preconfigured responses. The stub can be initialized with a response map (keyed by prompt substring or index) or a single default response. This allows acceptance tests to exercise the full parse → generate → write pipeline with predictable output, verifying all deterministic logic without LLM variability.
+
+**Alternative**: Mock the `openai` package at the module level in tests — rejected because it is brittle (tied to OpenAI SDK internals) and would not survive a provider switch.
+
+### 8. Acceptance Tests in PR Verification
+Add a `test:accept` npm script that runs acceptance tests in `tests/acceptance/`. These tests use `StubLlmClient` and a fixture `.mm` file to exercise the full pipeline and assert on the output file structure and content. The GitHub Actions workflow adds an `acceptance` job alongside typecheck, lint, and test.
+
+**Alternative**: Run acceptance tests as part of the unit test suite — rejected because acceptance tests are conceptually different (full pipeline, file I/O) and should be independently runnable and reportable.
+
 ## Risks / Trade-offs
 
 - **[ESLint flat config ecosystem support]** → Some ESLint plugins may not support flat config yet. Mitigation: Use `typescript-eslint` which has full flat config support.
 - **[Dependency version drift]** → Pinning exact versions in `package.json` prevents drift but requires manual updates. Mitigation: Use `^` ranges for minor version flexibility; rely on lockfile for reproducibility.
 - **[Empty stubs may confuse linting]** → Placeholder files with unused exports will trigger lint warnings. Mitigation: Add minimal type exports that satisfy the linter without implementing logic.
+- **[LLM interface granularity]** → A single `generateSection` method may not cover all future LLM use cases (e.g., streaming, multi-turn). Mitigation: Start minimal; the interface can be extended with additional methods as new capabilities are needed. The abstraction boundary is the important part.
+- **[Stub fidelity]** → Stub responses do not validate prompt quality or LLM-specific formatting. Mitigation: Acceptance tests verify the deterministic pipeline logic (parsing, assembly, file writing); LLM output quality is a separate concern tested via integration tests with real API keys (out of scope for PR checks).
