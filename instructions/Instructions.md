@@ -23,3 +23,6 @@
 - The PR verification workflow isn't noting the coverage statistics on the Summary of the run as it should.
 - Add acceptance test output with detail about what is checked to the summary of the PR verification run.  For example, for the test titled "produces expected output from sample.mm", I would like line items for the items checked within that test, such as the generated book files (e.g. Book.txt and the individual markdown chapters) are present and that content checks on each markdown chapters were made.
 - There's a pull request on this git branch. You have the authority to make PR verification workflow changes and push to test the changs you're making. Please let me know if you don't have the ability to test your workflow changes.
+
+> Add User Documentation
+- Enhance the main project README.md so that it contains a summary of what the application does and how a user would use the application CLI. Provide information on what arguments are supported and examples of usage.
