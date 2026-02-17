@@ -1,0 +1,103 @@
+name: PR Verification
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run --coverage --coverage.reporter=text --coverage.reporter=json-summary
+      - name: Coverage summary
+        if: always()
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            node --input-type=module -e "
+              import { readFileSync } from 'node:fs';
+              const data = JSON.parse(readFileSync('coverage/coverage-summary.json', 'utf8'));
+              const lines = [];
+              lines.push('## Code Coverage');
+              lines.push('');
+              lines.push('| File | Statements | Branches | Functions | Lines |');
+              lines.push('|------|-----------|----------|-----------|-------|');
+              for (const [file, metrics] of Object.entries(data)) {
+                const label = file === 'total' ? '**All files**' : file.replace(/^.*\/src\//, 'src/');
+                const s = metrics.statements.pct;
+                const b = metrics.branches.pct;
+                const f = metrics.functions.pct;
+                const l = metrics.lines.pct;
+                lines.push('| ' + label + ' | ' + s + '% | ' + b + '% | ' + f + '% | ' + l + '% |');
+              }
+              console.log(lines.join('\n'));
+            " >> $GITHUB_STEP_SUMMARY
+          fi
+
+  acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run tests/acceptance/ --reporter=verbose --reporter=json --outputFile=acceptance-results.json
+      - name: Acceptance test summary
+        if: always()
+        run: |
+          if [ -f acceptance-results.json ]; then
+            node --input-type=module -e "
+              import { readFileSync } from 'node:fs';
+              const results = JSON.parse(readFileSync('acceptance-results.json', 'utf8'));
+              const lines = [];
+              lines.push('## Acceptance Tests');
+              lines.push('');
+              const passed = results.numPassedTests || 0;
+              const failed = results.numFailedTests || 0;
+              const total = results.numTotalTests || 0;
+              const icon = failed > 0 ? '❌' : '✅';
+              lines.push(icon + ' **' + passed + '/' + total + ' checks passed**');
+              lines.push('');
+              for (const suite of results.testResults || []) {
+                for (const test of suite.assertionResults || []) {
+                  const ancestors = test.ancestorTitles || [];
+                  const name = test.title || '';
+                  const status = test.status;
+                  const mark = status === 'passed' ? '✅' : status === 'failed' ? '❌' : '⏭️';
+                  const indent = ancestors.length > 1 ? '  '.repeat(ancestors.length - 1) : '';
+                  const context = ancestors.length > 1 ? ancestors.slice(1).join(' > ') + ' > ' : '';
+                  lines.push(indent + '- ' + mark + ' ' + context + name);
+                }
+              }
+              console.log(lines.join('\n'));
+            " >> $GITHUB_STEP_SUMMARY
+          fi
