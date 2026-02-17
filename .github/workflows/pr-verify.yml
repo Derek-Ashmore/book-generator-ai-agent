@@ -45,7 +45,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "| Category | Percentage |" >> $GITHUB_STEP_SUMMARY
             echo "|----------|-----------|" >> $GITHUB_STEP_SUMMARY
-            node -e "
+            node --input-type=module -e "
               import { readFileSync } from 'node:fs';
               const c = JSON.parse(readFileSync('coverage/coverage-summary.json', 'utf8')).total;
               for (const [k, v] of Object.entries(c)) {
@@ -63,4 +63,34 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run test:accept
+      - run: npx vitest run tests/acceptance/ --reporter=verbose --reporter=json --outputFile=acceptance-results.json
+      - name: Acceptance test summary
+        if: always()
+        run: |
+          if [ -f acceptance-results.json ]; then
+            node --input-type=module -e "
+              import { readFileSync } from 'node:fs';
+              const results = JSON.parse(readFileSync('acceptance-results.json', 'utf8'));
+              const lines = [];
+              lines.push('## Acceptance Tests');
+              lines.push('');
+              const passed = results.numPassedTests || 0;
+              const failed = results.numFailedTests || 0;
+              const total = results.numTotalTests || 0;
+              const icon = failed > 0 ? '❌' : '✅';
+              lines.push(icon + ' **' + passed + '/' + total + ' checks passed**');
+              lines.push('');
+              for (const suite of results.testResults || []) {
+                for (const test of suite.assertionResults || []) {
+                  const ancestors = test.ancestorTitles || [];
+                  const name = test.title || '';
+                  const status = test.status;
+                  const mark = status === 'passed' ? '✅' : status === 'failed' ? '❌' : '⏭️';
+                  const indent = ancestors.length > 1 ? '  '.repeat(ancestors.length - 1) : '';
+                  const context = ancestors.length > 1 ? ancestors.slice(1).join(' > ') + ' > ' : '';
+                  lines.push(indent + '- ' + mark + ' ' + context + name);
+                }
+              }
+              console.log(lines.join('\n'));
+            " >> $GITHUB_STEP_SUMMARY
+          fi
