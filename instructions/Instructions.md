@@ -26,3 +26,6 @@
 
 > Add User Documentation
 - Enhance the main project README.md so that it contains a summary of what the application does and how a user would use the application CLI. Provide information on what arguments are supported and examples of usage.
+
+> OpenSpec approval
+- Approve and archive OpenSpec change init-project-stack. This change is still listed as proposed even though it has now been implemented.
