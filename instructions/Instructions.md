@@ -43,3 +43,6 @@
 - Please approve OpenSpec change base-unit-test-coverage and implement all changes. You have the GitHub CLI available with privileges to commit and test execute the workflow being modified. Please make sure the workflow executes correctly before finishing work. Please let me know if you have questions.
 
 - Please modify workflow base-deterministic-unit-tests.yml so that it also executes for pull requests against the main branch. Please archive OpenSpec change base-unit-test-coverage and prepare a pull request for this change.
+
+### Lower-Middle — Constrained Model Tests
+- A testing pyramid is described in file instructions/Testing-Pyramid.md. Create an OpenSpec change proposal to modify workflow constrained_model_tests.yml to include all tests listed in the Lower-Middle — Constrained Model Tests section of the pyramid. Please draft the OpenSpec change for me to review. Please detail your thinking and any questions you have for me in file notes/constrained_model_testing_notes.md.
