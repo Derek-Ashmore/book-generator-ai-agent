@@ -1,6 +1,8 @@
 name: Base — Deterministic Unit Tests
 
 on:
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -8,6 +10,98 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # Add deterministic unit test logic here
-      - name: Placeholder
-        run: echo "Deterministic unit tests — logic to be added"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run deterministic unit tests
+        run: |
+          npx vitest run tests/unit/ \
+            --reporter=verbose \
+            --reporter=json --outputFile=test-results.json \
+            --coverage --coverage.reporter=text --coverage.reporter=json-summary
+
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## Deterministic Unit Test Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          # Parse test results JSON for the summary table
+          node -e '
+            const fs = require("fs");
+            const data = JSON.parse(fs.readFileSync("test-results.json", "utf-8"));
+            const lines = [];
+
+            lines.push("### Test Suites");
+            lines.push("");
+            lines.push("| Status | File | Tests | Duration |");
+            lines.push("|--------|------|-------|----------|");
+
+            for (const suite of data.testResults) {
+              const name = suite.name.replace(process.cwd() + "/", "");
+              const passed = suite.assertionResults.filter(t => t.status === "passed").length;
+              const failed = suite.assertionResults.filter(t => t.status === "failed").length;
+              const total = suite.assertionResults.length;
+              const icon = failed > 0 ? "❌" : "✅";
+              const ms = Math.round((suite.endTime - suite.startTime));
+              lines.push(`| ${icon} | \`${name}\` | ${passed}/${total} passed | ${ms}ms |`);
+            }
+
+            lines.push("");
+            lines.push("### Individual Tests");
+            lines.push("");
+
+            for (const suite of data.testResults) {
+              const name = suite.name.replace(process.cwd() + "/", "");
+              lines.push(`<details><summary><b>${name}</b></summary>`);
+              lines.push("");
+              lines.push("| Status | Test |");
+              lines.push("|--------|------|");
+              for (const test of suite.assertionResults) {
+                const icon = test.status === "passed" ? "✅" : "❌";
+                const title = test.ancestorTitles.concat(test.title).join(" > ");
+                lines.push(`| ${icon} | ${title} |`);
+              }
+              lines.push("");
+              lines.push("</details>");
+              lines.push("");
+            }
+
+            lines.push(`**Total: ${data.numPassedTests} passed, ${data.numFailedTests} failed, ${data.numTotalTests} total**`);
+            lines.push("");
+
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n"));
+          '
+
+          # Append coverage table if the report exists
+          if [ -f coverage/coverage-summary.json ]; then
+            node -e '
+              const fs = require("fs");
+              const data = JSON.parse(fs.readFileSync("coverage/coverage-summary.json", "utf-8"));
+              const lines = [];
+
+              lines.push("### Coverage");
+              lines.push("");
+              lines.push("| File | Statements | Branches | Functions | Lines |");
+              lines.push("|------|-----------|----------|-----------|-------|");
+
+              const fmt = (pct) => {
+                const icon = pct >= 80 ? "🟢" : pct >= 50 ? "🟡" : "🔴";
+                return `${icon} ${pct.toFixed(1)}%`;
+              };
+
+              for (const [file, metrics] of Object.entries(data)) {
+                const name = file === "total" ? "**All files**" : `\`${file.replace(process.cwd() + "/", "")}\``;
+                lines.push(`| ${name} | ${fmt(metrics.statements.pct)} | ${fmt(metrics.branches.pct)} | ${fmt(metrics.functions.pct)} | ${fmt(metrics.lines.pct)} |`);
+              }
+
+              lines.push("");
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n"));
+            '
+          fi
