@@ -8,6 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # Add deterministic unit test logic here
-      - name: Placeholder
-        run: echo "Deterministic unit tests — logic to be added"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run deterministic unit tests
+        run: npx vitest run tests/unit/
