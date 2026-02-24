@@ -29,3 +29,10 @@
 
 > OpenSpec approval
 - Approve and archive OpenSpec change init-project-stack. This change is still listed as proposed even though it has now been implemented.
+
+## Automated Testing Implementation
+
+### Base — Deterministic Unit Tests
+
+> Investigation
+- A testing pyramid is described in file instructions/Testing-Pyramid.md. Are there tests listed in the Base — Deterministic Unit Tests section of the pyramid that workflow pr-verify.yml isn't executing? Please notate these items in file notes/base_testing_notes.md.
