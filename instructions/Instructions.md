@@ -36,3 +36,5 @@
 
 > Investigation
 - A testing pyramid is described in file instructions/Testing-Pyramid.md. Are there tests listed in the Base — Deterministic Unit Tests section of the pyramid that workflow pr-verify.yml isn't executing? Please notate these items in file notes/base_testing_notes.md.
+
+- Create an OpenSpec change proposal to modify workflow base-deterministic-unit-tests.yml to include all base testing gaps you identified in file notes/base_testing_notes.md.
