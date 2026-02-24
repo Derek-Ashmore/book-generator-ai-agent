@@ -1,0 +1,13 @@
+name: Lower-Middle — Constrained Model Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  constrained-model-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Add deterministic unit test logic here
+      - name: Placeholder
+        run: echo "Constrained Model Tests — logic to be added"

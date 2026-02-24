@@ -1,0 +1,13 @@
+name: Base — Deterministic Unit Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deterministic-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Add deterministic unit test logic here
+      - name: Placeholder
+        run: echo "Deterministic unit tests — logic to be added"
