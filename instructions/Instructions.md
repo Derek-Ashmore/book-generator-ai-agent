@@ -41,3 +41,5 @@
 
 > Proposal implementation
 - Please approve OpenSpec change base-unit-test-coverage and implement all changes. You have the GitHub CLI available with privileges to commit and test execute the workflow being modified. Please make sure the workflow executes correctly before finishing work. Please let me know if you have questions.
+
+- Please modify workflow base-deterministic-unit-tests.yml so that it also executes for pull requests against the main branch. Please archive OpenSpec change base-unit-test-coverage and prepare a pull request for this change.
