@@ -99,3 +99,41 @@ A new npm script `test:constrained` would run just these tests.
 5. **Model selection**: Should constrained tests use `gpt-4o` (same as production) or `gpt-4o-mini` (cheaper, faster, but different capability profile)? Using the production model gives higher signal but costs more.
 
 6. **Retry handling**: LLM API calls can fail transiently (rate limits, timeouts). Should constrained tests include retry logic, or should transient failures simply fail the workflow run?
+
+## Implementation Decisions Made
+
+Based on the analysis above, these decisions were made during implementation:
+
+1. **Structured output compliance**: Chose **Option A** — validate that LLM output produces well-formed markdown when assembled via `generateBook`. This tests the real integration path without adding test-only production code.
+
+2. **API cost management**: Default model is `gpt-4o-mini` (cheaper/faster), configurable to `gpt-4o` via workflow dispatch input. This keeps CI costs low while allowing full-signal runs on demand.
+
+3. **Assertion strictness**: Chose **Medium** — assertions check that responses address the topic, reference most content points, are of reasonable length, and are well-formed prose. Not brittle on exact phrasing.
+
+4. **OpenAiClient modification**: Added `OpenAiClientOptions` interface with optional `model`, `temperature`, and `seed` params. Constructor remains backward-compatible (accepts a plain `string` for just the API key). This is useful beyond testing — configurable model/temperature is good production design.
+
+5. **Model selection**: Defaults to `gpt-4o-mini` for cost efficiency; `gpt-4o` available via workflow input.
+
+6. **Retry handling**: No retry logic added. Transient failures fail the run, which is appropriate for `workflow_dispatch`-only tests that a human triggers intentionally.
+
+## Differences from the Testing Pyramid (Lower-Middle Section)
+
+The Testing Pyramid's Lower-Middle tier describes constrained model tests for a generic AI agent. Several aspects differ when applied to this specific codebase:
+
+### Applicable and Implemented
+
+- **Prompt effectiveness**: Directly applicable. The generator has a single prompt template; we test it with real LLM calls and validate the output is relevant prose.
+- **Basic capability**: Directly applicable. We test with varying input sizes (few vs many content points).
+- **temperature=0**: Directly applicable. Added as a constructor option to `OpenAiClient`.
+- **Fixed random seeds**: Directly applicable. OpenAI supports the `seed` parameter; added to constructor options.
+- **Carefully crafted test inputs**: Directly applicable. Tests use factual topics (water cycle, photosynthesis, plate tectonics) with objectively verifiable keywords.
+
+### Adapted / Partially Applicable
+
+- **Structured output compliance**: The pyramid assumes the agent produces structured output (JSON, function calls). This agent produces free-form prose only. Adapted to validate markdown structure of the assembled chapter output instead. This is a meaningful structural validation even though it's not JSON schema compliance.
+- **Tool selection under controlled conditions**: The pyramid assumes the agent selects between multiple tools. This agent has no tool selection — it always calls `generateSection` with the same prompt template. Adapted to test the end-to-end generation pipeline (`generateBook`) with a real LLM, which validates the full chain including prompt construction and content assembly.
+
+### Not Applicable Currently
+
+- **Structured output modes (JSON schema, function calling)**: The application does not use OpenAI structured output modes or function calling. There is no JSON schema to validate against. If structured outputs are added in the future (e.g., for metadata extraction or table of contents generation), this test category should be revisited.
+- **Complex tool routing under controlled conditions**: The agent does not route between different tools or capabilities. Every section uses the same `generateSection` call. The Base tier's deterministic tests already validate call ordering and prompt construction. The constrained test adds value by verifying the real LLM produces usable output, but there is no tool-selection logic to test.

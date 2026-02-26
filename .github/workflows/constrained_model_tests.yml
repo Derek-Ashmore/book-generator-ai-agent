@@ -2,12 +2,93 @@ name: Lower-Middle — Constrained Model Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      model:
+        description: 'OpenAI model to use for tests'
+        required: false
+        default: 'gpt-4o-mini'
+        type: choice
+        options:
+          - gpt-4o-mini
+          - gpt-4o
 
 jobs:
   constrained-model-tests:
     runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      CONSTRAINED_MODEL: ${{ inputs.model }}
     steps:
       - uses: actions/checkout@v4
-      # Add deterministic unit test logic here
-      - name: Placeholder
-        run: echo "Constrained Model Tests — logic to be added"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run constrained model tests
+        run: |
+          npx vitest run tests/constrained/ \
+            --reporter=verbose \
+            --reporter=json --outputFile=constrained-results.json
+
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## Constrained Model Test Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Model:** \`${CONSTRAINED_MODEL}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -f constrained-results.json ]; then
+            node -e '
+              const fs = require("fs");
+              const data = JSON.parse(fs.readFileSync("constrained-results.json", "utf-8"));
+              const lines = [];
+
+              lines.push("### Test Suites");
+              lines.push("");
+              lines.push("| Status | File | Tests | Duration |");
+              lines.push("|--------|------|-------|----------|");
+
+              for (const suite of data.testResults) {
+                const name = suite.name.replace(process.cwd() + "/", "");
+                const passed = suite.assertionResults.filter(t => t.status === "passed").length;
+                const failed = suite.assertionResults.filter(t => t.status === "failed").length;
+                const total = suite.assertionResults.length;
+                const icon = failed > 0 ? "❌" : "✅";
+                const ms = Math.round((suite.endTime - suite.startTime));
+                lines.push(`| ${icon} | \`${name}\` | ${passed}/${total} passed | ${ms}ms |`);
+              }
+
+              lines.push("");
+              lines.push("### Individual Tests");
+              lines.push("");
+
+              for (const suite of data.testResults) {
+                const name = suite.name.replace(process.cwd() + "/", "");
+                lines.push(`<details><summary><b>${name}</b></summary>`);
+                lines.push("");
+                lines.push("| Status | Test |");
+                lines.push("|--------|------|");
+                for (const test of suite.assertionResults) {
+                  const icon = test.status === "passed" ? "✅" : "❌";
+                  const title = test.ancestorTitles.concat(test.title).join(" > ");
+                  lines.push(`| ${icon} | ${title} |`);
+                }
+                lines.push("");
+                lines.push("</details>");
+                lines.push("");
+              }
+
+              lines.push(`**Total: ${data.numPassedTests} passed, ${data.numFailedTests} failed, ${data.numTotalTests} total**`);
+              lines.push("");
+
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n"));
+            '
+          else
+            echo "⚠️ No test results file found." >> "$GITHUB_STEP_SUMMARY"
+          fi
