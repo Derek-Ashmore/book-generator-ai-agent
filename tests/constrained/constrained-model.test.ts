@@ -13,7 +13,7 @@ import type { Outline } from '../../src/types.js';
  * Requires OPENAI_API_KEY environment variable.
  */
 
-const CONSTRAINED_MODEL = process.env.CONSTRAINED_MODEL ?? 'gpt-4o-mini';
+const CONSTRAINED_MODEL = process.env.CONSTRAINED_MODEL ?? 'gpt-4o';
 const CONSTRAINED_SEED = 42;
 
 let client: OpenAiClient;

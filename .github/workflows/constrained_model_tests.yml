@@ -6,11 +6,11 @@ on:
       model:
         description: 'OpenAI model to use for tests'
         required: false
-        default: 'gpt-4o-mini'
+        default: 'gpt-4o'
         type: choice
         options:
-          - gpt-4o-mini
           - gpt-4o
+          - gpt-4o-mini
 
 jobs:
   constrained-model-tests:
