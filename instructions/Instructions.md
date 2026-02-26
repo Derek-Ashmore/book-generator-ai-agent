@@ -64,3 +64,4 @@
 > PR verification test remediation.
 - Pull request verification workflow pr-verify.yml errors out. Please investigate and fix.
 - Please verify that workflows base-deterministic-unit-tests.yml and constrained_model_tests.yml still work after any changes you make.
+- Please archive OpenSpec change 2026-02-24-constrained-model-tests.
