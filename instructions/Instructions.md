@@ -43,3 +43,25 @@
 - Please approve OpenSpec change base-unit-test-coverage and implement all changes. You have the GitHub CLI available with privileges to commit and test execute the workflow being modified. Please make sure the workflow executes correctly before finishing work. Please let me know if you have questions.
 
 - Please modify workflow base-deterministic-unit-tests.yml so that it also executes for pull requests against the main branch. Please archive OpenSpec change base-unit-test-coverage and prepare a pull request for this change.
+
+### Lower-Middle — Constrained Model Tests
+- A testing pyramid is described in file instructions/Testing-Pyramid.md. Create an OpenSpec change proposal to modify workflow constrained_model_tests.yml to include all tests listed in the Lower-Middle — Constrained Model Tests section of the pyramid. Please draft the OpenSpec change for me to review. Please detail your thinking and any questions you have for me in file notes/constrained_model_testing_notes.md.
+
+> Information additions
+- Remove requirement Prompt effectiveness — Does your system prompt reliably elicit the right behavior? from the OpenSpec proposal as it doesn't apply to the agent currently.
+- I choose option 2.A from your notes: Change the OpenSpec proposal to validate that the text output, when assembled into chapter markdown by generateChapter, produces valid Leanpub markdown (has headings, prose paragraphs, no broken formatting). This is a "structured output" in the loose sense.
+- Change the OpenSpec proposal to  Validate that LLM text output produces well-formed markdown when assembled.
+- Change the OpenSpec proposal to Make the model configurable. A user should be able to specify it.
+- Change the OpenSpec proposal to Make Assertions for Constrained model tests should be that responses address the topic, references most content points, is well-formed prose.
+- Change the OpenSpec proposal to Add temperature and seed params to the constructor changes production code for testing purposes.
+- Change the OpenSpec proposal to make constrained tests include retry logic.
+
+> Implementation isntructions.
+- Please approve OpenSpec change 2026-02-24-constrained-model-tests and implement all changes. You have the GitHub CLI available with privileges to commit and test execute the workflow being modified. Please make sure the workflow executes correctly before finishing work. Please let me know if you have questions.
+- Please detail your thinking and any questions you have for me in file notes/constrained_model_testing_notes.md.
+- A testing pyramid is described in file instructions/Testing-Pyramid.md.  Please note any differences in the Lower-Middle — Constrained Model Tests section of the pyramid in file notes/constrained_model_testing_notes.md. It's possible that some portions of this section do not apply with the agent currently.
+
+> PR verification test remediation.
+- Pull request verification workflow pr-verify.yml errors out. Please investigate and fix.
+- Please verify that workflows base-deterministic-unit-tests.yml and constrained_model_tests.yml still work after any changes you make.
+- Please archive OpenSpec change 2026-02-24-constrained-model-tests.

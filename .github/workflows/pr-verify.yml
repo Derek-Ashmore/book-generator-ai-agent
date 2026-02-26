@@ -36,7 +36,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npx vitest run --coverage --coverage.reporter=text --coverage.reporter=json-summary
+      - run: npx vitest run --coverage --coverage.reporter=text --coverage.reporter=json-summary --exclude '**/constrained/**'
       - name: Coverage summary
         if: always()
         run: |
