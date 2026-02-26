@@ -55,3 +55,8 @@
 - Change the OpenSpec proposal to Make Assertions for Constrained model tests should be that responses address the topic, references most content points, is well-formed prose.
 - Change the OpenSpec proposal to Add temperature and seed params to the constructor changes production code for testing purposes.
 - Change the OpenSpec proposal to make constrained tests include retry logic.
+
+> Implementation isntructions.
+- Please approve OpenSpec change 2026-02-24-constrained-model-tests and implement all changes. You have the GitHub CLI available with privileges to commit and test execute the workflow being modified. Please make sure the workflow executes correctly before finishing work. Please let me know if you have questions.
+- Please detail your thinking and any questions you have for me in file notes/constrained_model_testing_notes.md.
+- A testing pyramid is described in file instructions/Testing-Pyramid.md.  Please note any differences in the Lower-Middle — Constrained Model Tests section of the pyramid in file notes/constrained_model_testing_notes.md. It's possible that some portions of this section do not apply with the agent currently.
