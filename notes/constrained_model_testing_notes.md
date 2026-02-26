@@ -112,7 +112,7 @@ Based on the analysis above, these decisions were made during implementation:
 
 4. **OpenAiClient modification**: Added `OpenAiClientOptions` interface with optional `model`, `temperature`, and `seed` params. Constructor remains backward-compatible (accepts a plain `string` for just the API key). This is useful beyond testing — configurable model/temperature is good production design.
 
-5. **Model selection**: Defaults to `gpt-4o-mini` for cost efficiency; `gpt-4o` available via workflow input.
+5. **Model selection**: Defaults to `gpt-4o` (same as production). The OpenAI project API key only has access to `gpt-4o`, not `gpt-4o-mini`, so `gpt-4o` is the only viable default. If project access is expanded, the workflow dispatch input allows selecting `gpt-4o-mini`.
 
 6. **Retry handling**: No retry logic added. Transient failures fail the run, which is appropriate for `workflow_dispatch`-only tests that a human triggers intentionally.
 
