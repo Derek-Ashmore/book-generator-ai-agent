@@ -60,3 +60,7 @@
 - Please approve OpenSpec change 2026-02-24-constrained-model-tests and implement all changes. You have the GitHub CLI available with privileges to commit and test execute the workflow being modified. Please make sure the workflow executes correctly before finishing work. Please let me know if you have questions.
 - Please detail your thinking and any questions you have for me in file notes/constrained_model_testing_notes.md.
 - A testing pyramid is described in file instructions/Testing-Pyramid.md.  Please note any differences in the Lower-Middle — Constrained Model Tests section of the pyramid in file notes/constrained_model_testing_notes.md. It's possible that some portions of this section do not apply with the agent currently.
+
+> PR verification test remediation.
+- Pull request verification workflow pr-verify.yml errors out. Please investigate and fix.
+- Please verify that workflows base-deterministic-unit-tests.yml and constrained_model_tests.yml still work after any changes you make.
