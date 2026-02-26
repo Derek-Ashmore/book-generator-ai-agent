@@ -46,3 +46,12 @@
 
 ### Lower-Middle — Constrained Model Tests
 - A testing pyramid is described in file instructions/Testing-Pyramid.md. Create an OpenSpec change proposal to modify workflow constrained_model_tests.yml to include all tests listed in the Lower-Middle — Constrained Model Tests section of the pyramid. Please draft the OpenSpec change for me to review. Please detail your thinking and any questions you have for me in file notes/constrained_model_testing_notes.md.
+
+> Information additions
+- Remove requirement Prompt effectiveness — Does your system prompt reliably elicit the right behavior? from the OpenSpec proposal as it doesn't apply to the agent currently.
+- I choose option 2.A from your notes: Change the OpenSpec proposal to validate that the text output, when assembled into chapter markdown by generateChapter, produces valid Leanpub markdown (has headings, prose paragraphs, no broken formatting). This is a "structured output" in the loose sense.
+- Change the OpenSpec proposal to  Validate that LLM text output produces well-formed markdown when assembled.
+- Change the OpenSpec proposal to Make the model configurable. A user should be able to specify it.
+- Change the OpenSpec proposal to Make Assertions for Constrained model tests should be that responses address the topic, references most content points, is well-formed prose.
+- Change the OpenSpec proposal to Add temperature and seed params to the constructor changes production code for testing purposes.
+- Change the OpenSpec proposal to make constrained tests include retry logic.
